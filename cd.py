@@ -41,34 +41,139 @@ class Root(Tk):
     def fileAnalyze(self):
         self.result.configure(text="analyzing")
         reList = analyze(self.filename)
+        print(reList)
         # shows the relist
 
 
 def analyze(filename):
     
-    #read target file.
+    #wavelet cwt 
+    #read the target signal from the wav file.
     sig, sr=librosa.load(filename)
-    #remove <5000 & >10000 noise.
-    #cwt.
-    #compare with ex1,ex2,ex3
-    #get 
+    #print(len(sig), sr)
+    #bandpass to remove the noise
+    sig = butter_bandpass_filter(sig,5000.0,11000.0,sr, 5)
+    #print(len(sig), sr)
 
-    #cwt ex1-2-3
-    ex1=cwt("ex1.wav")
-    ex2=cwt("ex2.wav")
-    ex3=cwt("ex3.wav")
+    widths= [800]
+    ex= signal.cwt(sig,signal.ricker,widths)
+    #covert nd array to list
+    scale_list = list(ex[0])
     
-
     #Feature extraction
+    f_list=list()
+    f_list = fe(scale_list)
+    print(f_list)
+    #check the rules to detect coughing
+    #regroup the feature_list base on the distance d<500
+    d=500 
+    g_list=list()
+    group=[]
+    for f in f_list:
+        
+        if not group:
+            group.append(f)
+            #print('first',f)
+        elif (f[0]-group[-1][1])<d:
+            group.append(f)
+            #print('ddd',group)
+        else:
+            #if len(group)>2: # group member must >=3 
+            g_list.append(group)
+            group=[]
+            group.append(f)
+    #if len(group)>2: # group member must >=3
+    g_list.append(group)
+    print(g_list)
+    
+    #if this program cannot fit for some examples, we can analyze the groups.
+    #for example, group max min value, length of feature.
 
+    #cover to time
+    result=[]
+    for g in g_list:
+        time = g[0][0]/22050
+        During = (g[-1][0]-g[0][0])/22050 
+        result.append([time,During])
+    print(result)
+    return result
 
+#Feature extraction,
+# original signal after cwt (00000++++0----0+++++0000000)  
+# 0 <==> (-0.05<v<0.5), 1 <==> (v>0.5),-1 <==> (v<-0.05)
+# will return [(start_index,end_index,max,min),(start_index,end_index,max,min)....]
+def fe(scale_list):
+     # 0 <==> (-0.05<v<0.5), 1 <==> (v>0.5),-1 <==> (v<-0.05) 
+    v=0.05
+    nv=-0.05
+    flag=0
+    pmax=0
+    pmin=9999
+    nmax=-9999
+    nmin=0
+    start=0
+    end=0
+    result = list()
+    for i in range(len(scale_list)):
+        if scale_list[i]>v and flag==0:  #0-->1
+            flag=1
+            start=i
+            pmax=scale_list[i]
+            pmin=scale_list[i]
+            end=i
 
+        if scale_list[i]>v and flag==1:  #1--->1 update max min and end
+            if scale_list[i]>pmax:
+                pmax=scale_list[i]
+            if scale_list[i]<pmin:
+                pmin=scale_list[i]
+            end = i
 
-    l=(0,0,0)
-    return l
+        if scale_list[i]<nv and flag==1:  #1--> -1
+            result.append((start,end,pmax,pmin))
+            flag=-1
+            start=i
+            nmax=scale_list[i]
+            nmin=scale_list[i]
+            end=i
+            
+        if scale_list[i]<nv and flag==0: #0-->-1 
+            flag=-1
+            start=i
+            nmax=scale_list[i]
+            nmin=scale_list[i]
+            end=i
+        
+        if scale_list[i]<nv and flag==-1:  #-1--->-1 update max min and end
+            if scale_list[i]>nmax:
+                nmax=scale_list[i]
+            if scale_list[i]<nmin:
+                nmin=scale_list[i]
+            end = i
 
-def FE(nda): #Feature extraction
-    for 
+        if scale_list[i]>v and flag==-1:  #-1-->1
+            result.append((start,end,nmax,nmin))
+            flag=1
+            start=i
+            pmax=scale_list[i]
+            pmin=scale_list[i]
+            end=i
+
+        if nv<scale_list[i]<v and flag!=0:   #-1 or 1 --->0  #append 
+            if flag ==1:
+                result.append((start,end,pmax,pmin))
+            else:
+                result.append((start,end,nmax,nmin))
+            flag=0
+            pmax=0
+            pmin=9999
+            nmax=-9999
+            nmin=0
+            start=0
+            end=0
+    return result
+
+        
 
 
 
@@ -100,7 +205,7 @@ def cwt(Filename):  #cwt example
 
     #create the plot to show the ex1
     t=np.linspace(1,len(sig),len(sig))
-    widths= np.arange(800,900)
+    widths= (800)
     ex= signal.cwt(sig,signal.ricker,widths)
     return ex
 
