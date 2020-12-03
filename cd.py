@@ -12,15 +12,18 @@ class Root(Tk):
     def __init__(self):
         super(Root, self).__init__()
         self.title("Coughing detection")
-        self.minsize(320, 200)
+        self.minsize(640, 480)
+        #self.columnconfigure(0,minsize=(200,200))
         self.labelFrame = ttk.LabelFrame(self, text = "Choose a Wav File")
         self.labelFrame.grid(column = 0, row = 1, padx = 20, pady = 20)
         self.button()
         self.abutton()
         self.result=ttk.Label(text="1")
-        self.result.grid(column=1,row=3)
- 
- 
+        self.result.grid(column = 0, row = 2, padx = 10, pady = 10)
+        self.reTree = ttk.Treeview(self)
+        self.reTree.grid(column = 0, row = 3 )
+        self.reTree.column("#0", minwidth=200, width=200, stretch=NO)
+
     def button(self):
         self.button = ttk.Button(self.labelFrame, text = "Browse A File",command = self.fileDialog)
         self.button.grid(column = 1, row = 1)
@@ -41,9 +44,13 @@ class Root(Tk):
     def fileAnalyze(self):
         self.result.configure(text="analyzing")
         reList = analyze(self.filename)
-        print(reList)
+        
         # shows the relist
+        self.result.configure(text="Total of " +str(len(reList))+ " cough were detected!")
+        for r in reList:
+            self.reTree.insert("",0,text=("a cough happens at "+str(r[0])+ "s. The during is "+str(r[1])+"s."))
 
+        #show the 
 
 def analyze(filename):
     
@@ -63,7 +70,7 @@ def analyze(filename):
     #Feature extraction
     f_list=list()
     f_list = fe(scale_list)
-    print(f_list)
+    #print(f_list)
     #check the rules to detect coughing
     #regroup the feature_list base on the distance d<500
     d=500 
@@ -78,12 +85,12 @@ def analyze(filename):
             group.append(f)
             #print('ddd',group)
         else:
-            #if len(group)>2: # group member must >=3 
-            g_list.append(group)
+            if len(group)>2: # group member must >=3 
+                g_list.append(group)
             group=[]
             group.append(f)
-    #if len(group)>2: # group member must >=3
-    g_list.append(group)
+    if len(group)>2: # group member must >=3
+        g_list.append(group)
     print(g_list)
     
     #if this program cannot fit for some examples, we can analyze the groups.
