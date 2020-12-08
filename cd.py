@@ -2,6 +2,7 @@ import librosa
 import numpy as np
 from scipy import signal
 import matplotlib.pyplot as plt
+import os
 
 from tkinter import *
 from tkinter import ttk
@@ -15,6 +16,7 @@ class Root(Tk):
         self.minsize(640, 480)
         self.labelFrame = ttk.LabelFrame(self, text = "Choose a Wav File")
         self.labelFrame.grid(column = 0, row = 1)
+        self.label = ttk.Label(self.labelFrame, text = "")
         self.button()
         self.abutton()
         self.result=ttk.Label(text="")
@@ -34,9 +36,8 @@ class Root(Tk):
  
     def fileDialog(self):
  
-        self.filename = filedialog.askopenfilename(initialdir =  "/home/weishi/cse4340", title = "Select A File", filetypes =
+        self.filename = filedialog.askopenfilename(initialdir = os.getcwd(), title = "Select A File", filetypes =
         (("wav files","*.wav"),("mp3 files","*.mp3")) )
-        self.label = ttk.Label(self.labelFrame, text = "")
         self.label.grid(column = 1, row = 2)
         self.label.configure(text = self.filename)
  
@@ -56,7 +57,7 @@ class Root(Tk):
         self.iids.clear()
         # show new results
         for r in reList:
-            self.iids.append(self.reTree.insert("", "end", text=("{0:.6g}".format(r[0]) + " s"), values=("{0:.6g}".format(r[1]) + " s")))
+            self.iids.append(self.reTree.insert("", "end", text=("{0:.6g}".format(r[0]) + " s"), values=["{0:.6g}".format(r[1]) + " s"]))
 
         #show the 
 
