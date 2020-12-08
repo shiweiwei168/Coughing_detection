@@ -106,12 +106,6 @@ def fe(scale_list):
             end=0
     return result
 
-        
-
-
-
-
-
 
 #functions for bandpass
 def butter_bandpass(lowcut,highcut,fs,order=5):
@@ -154,7 +148,7 @@ plt.show(block=False)
 
 #wavelet cwt ex2
 #read the target signal from the wav file.
-sig, sr=librosa.load("ex5.wav")
+sig, sr=librosa.load("T002.wav")
 #print(len(sig), sr)
 
 #bandpass to remove the noise
@@ -163,23 +157,23 @@ sig = butter_bandpass_filter(sig,5000.0,11000.0,sr, 5)
 
 #create the plot to show the ex2
 t=np.linspace(1,len(sig),len(sig))
-widths= np.arange(800,850)
+widths= np.arange(800,900)
 # widths= np.arange(600,650)
 ex2= signal.cwt(sig,signal.ricker,widths)
 print(ex2)
 
-plt.figure('ex2.wav')
+plt.figure('T002.wav')
 plt.subplot(2,1,1)
 plt.plot(sig)
 plt.subplot(2,1,2)
-plt.imshow(ex2,extent=[-1,1,800,850], cmap='PRGn',aspect='auto',vmax=abs(ex2).max(),vmin=-abs(ex2).max())
+plt.imshow(ex2,extent=[0,len(ex2[0]),800,900], cmap='PRGn',aspect='auto',vmax=abs(ex2).max(),vmin=-abs(ex2).max())
 plt.show(block=False)
 
 
 #wavelet cwt ex3
 
 #read the target signal from the wav file.
-sig, sr=librosa.load("t3.wav")
+sig, sr=librosa.load("T001.wav")
 print(len(sig), sr)
 
 #bandpass to remove the noise
@@ -188,14 +182,14 @@ print(len(sig), sr)
 
 #create the plot to show the ex3
 t=np.linspace(1,len(sig),len(sig))
-widths= np.arange(600,650)
+widths= np.arange(800,810)
 ex3= signal.cwt(sig,signal.ricker,widths)
 print(ex3[0],ex3[0][0])
-plt.figure('ex3.wav')
+plt.figure('T001.wav')
 plt.subplot(2,1,1)
 plt.plot(sig)
 plt.subplot(2,1,2)
-plt.imshow(ex3,extent=[-1,1,800,810], cmap='PRGn',aspect='auto',vmax=abs(ex3).max(),vmin=-abs(ex3).max())
+plt.imshow(ex3,extent=[0,len(ex3[0]),800,810], cmap='PRGn',aspect='auto',vmax=abs(ex3).max(),vmin=-abs(ex3).max())
 plt.show(block=True)
 
 

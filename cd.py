@@ -70,7 +70,7 @@ def analyze(filename):
     #Feature extraction
     f_list=list()
     f_list = fe(scale_list)
-    #print(f_list)
+    print(f_list)
     #check the rules to detect coughing
     #regroup the feature_list base on the distance d<500
     d=500 
@@ -106,11 +106,11 @@ def analyze(filename):
     return result
 
 #Feature extraction,
-# original signal after cwt (00000++++0----0+++++0000000)  
-# 0 <==> (-0.05<v<0.5), 1 <==> (v>0.5),-1 <==> (v<-0.05)
+# original signal after cwt (00000++++00----00+++++0000000)  
+# 0 <==> (-0.05<v<0.05), 1 <==> (v>0.05),-1 <==> (v<-0.05)
 # will return [(start_index,end_index,max,min),(start_index,end_index,max,min)....]
 def fe(scale_list):
-     # 0 <==> (-0.05<v<0.5), 1 <==> (v>0.5),-1 <==> (v<-0.05) 
+     # 0 <==> (-0.05<v<0.05), 1 <==> (v>0.05),-1 <==> (v<-0.05) 
     v=0.05
     nv=-0.05
     flag=0
