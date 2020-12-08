@@ -11,21 +11,24 @@ from tkinter import filedialog
 class Root(Tk):
     def __init__(self):
         super(Root, self).__init__()
-        self.title("Coughing detection")
+        self.title("Coughing Detection")
         self.minsize(640, 480)
-        #self.columnconfigure(0,minsize=(200,200))
         self.labelFrame = ttk.LabelFrame(self, text = "Choose a Wav File")
-        self.labelFrame.grid(column = 0, row = 1, padx = 20, pady = 20)
+        self.labelFrame.grid(column = 0, row = 1)
         self.button()
         self.abutton()
-        self.result=ttk.Label(text="1")
+        self.result=ttk.Label(text="")
         self.result.grid(column = 0, row = 2, padx = 10, pady = 10)
-        self.reTree = ttk.Treeview(self)
-        self.reTree.grid(column = 0, row = 3 )
-        self.reTree.column("#0", minwidth=200, width=200, stretch=NO)
+        self.reTree = ttk.Treeview(self, columns="#1")
+        self.reTree.grid(column = 0, row = 3, columnspan=2)
+        self.reTree.heading("#0",text="Start Time")
+        self.reTree.heading("#1",text="Duration")
+        self.reTree.column("#0", minwidth=200, width=200, stretch=YES)
+        self.reTree.column("#1", minwidth=200, width=200, stretch=YES)
+        self.iids = []
 
     def button(self):
-        self.button = ttk.Button(self.labelFrame, text = "Browse A File",command = self.fileDialog)
+        self.button = ttk.Button(self.labelFrame, text = "Browse for File",command = self.fileDialog)
         self.button.grid(column = 1, row = 1)
  
  
@@ -46,9 +49,14 @@ class Root(Tk):
         reList = analyze(self.filename)
         
         # shows the relist
-        self.result.configure(text="Total of " +str(len(reList))+ " cough were detected!")
+        self.result.configure(text="A total of " + str(len(reList)) + " cough" + ("s were" if len(reList) > 1 else " was") + " detected!")
+        # clear the list from previous results
+        for iid in self.iids:
+            self.reTree.delete(iid)
+        self.iids.clear()
+        # show new results
         for r in reList:
-            self.reTree.insert("",0,text=("a cough happens at "+str(r[0])+ "s. The during is "+str(r[1])+"s."))
+            self.iids.append(self.reTree.insert("", "end", text=("{0:.6g}".format(r[0]) + " s"), values=("{0:.6g}".format(r[1]) + " s")))
 
         #show the 
 
